@@ -8,5 +8,5 @@
 //  your data. NEVER paste the "service_role" or "secret" key here.
 // =====================================================================
 
-export const SUPABASE_URL = 'PASTE_YOUR_SUPABASE_URL_HERE';
-export const SUPABASE_ANON_KEY = 'PASTE_YOUR_ANON_KEY_HERE';
+export const SUPABASE_URL = 'https://bmnzntlyduycdkubcfyk.supabase.co';
+export const SUPABASE_ANON_KEY = 'sb_publishable_nZlLfgJKvfV_pi5ecxS6ww_z_v5Loff';
