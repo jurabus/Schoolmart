@@ -290,6 +290,17 @@ grant execute on function public.lookup_order(text, text) to anon, authenticated
 grant execute on function public.is_admin() to anon, authenticated;
 
 -- ---------------------------------------------------------------------
+-- Table permissions (newer Supabase projects grant nothing by default).
+-- Row Level Security below still decides WHICH rows each role can touch.
+-- admins and rate_limits get no grants: unreachable from the website.
+-- ---------------------------------------------------------------------
+grant usage on schema public to anon, authenticated;
+grant select on public.settings, public.categories, public.subcategories, public.products to anon, authenticated;
+grant update on public.settings to authenticated;
+grant insert, update, delete on public.categories, public.subcategories, public.products to authenticated;
+grant select, update, delete on public.orders, public.order_items to authenticated;
+
+-- ---------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------
 alter table public.admins        enable row level security;
