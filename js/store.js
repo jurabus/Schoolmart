@@ -370,7 +370,9 @@ async function route() {
     return notFound();
   } catch (e) {
     console.error(e);
-    app.innerHTML = `<div class="empty-page"><p>Something went wrong. Please refresh the page.</p></div>`;
+    app.innerHTML = `<div class="empty-page"><p>Something went wrong. Please refresh the page.</p><p class="muted small">${esc(e && e.message || e)}</p></div>`;
+  } finally {
+    window.__appStarted = true;
   }
 }
 

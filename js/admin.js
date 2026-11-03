@@ -612,4 +612,4 @@ async function init() {
   showLogin();
 }
 
-init().catch(fail);
+init().catch(fail).finally(() => { window.__appStarted = true; });
