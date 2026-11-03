@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>SchoolMart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/store.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="#/" class="brand"><img id="brand-logo" alt="" hidden><span id="brand-name"></span></a>
+    <nav class="nav">
+      <a href="#/track" id="nav-track" class="nav-link">Track order</a>
+      <a href="#/cart" class="cart-link" aria-label="Cart">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6.2M10 21a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm9 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>
+        <span id="cart-count" class="badge" hidden>0</span>
+      </a>
+    </nav>
+  </header>
+  <main id="app" class="container"><div class="loading" aria-busy="true"></div></main>
+  <footer class="footer"><div id="footer" class="container"></div></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
