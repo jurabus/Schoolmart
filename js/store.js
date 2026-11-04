@@ -61,7 +61,8 @@ function renderChrome() {
   const contact = [S.contact_phone, S.contact_email, S.contact_address].filter(Boolean);
   document.getElementById('footer').innerHTML =
     `<p class="pre">${esc(S.footer_text)}</p>` +
-    (contact.length ? `<p class="footer-contact">${contact.map(esc).join(' · ')}</p>` : '');
+    (contact.length ? `<p class="footer-contact">${contact.map(esc).join(' · ')}</p>` : '') +
+    `<p><a href="privacy.html">Privacy policy</a></p>`;
   updateBadge();
 }
 

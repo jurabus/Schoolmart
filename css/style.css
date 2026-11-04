@@ -302,3 +302,12 @@ div.preview-img { font-size: 1.6rem; }
 
 /* Right-to-left support if you set <html dir="rtl"> for Arabic */
 [dir=rtl] .cart-line, [dir=rtl] .table th, [dir=rtl] .table td { text-align: right; }
+
+/* ---------- legal pages ---------- */
+.legal { max-width: 760px; margin: 24px auto; padding: 24px; }
+.legal h1 { font-size: 1.9rem; }
+.legal h2 { font-size: 1.15rem; margin: 1.6em 0 .4em; }
+.legal ul { padding-left: 1.2em; }
+.legal li { margin: 4px 0; }
+.legal a { color: var(--accent); }
+.footer a { color: inherit; }
