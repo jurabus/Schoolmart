@@ -44,6 +44,12 @@
           "resizeMode": "contain"
         }
       ]
-    ]
+    ],
+    "owner": "jurabus",
+    "extra": {
+      "eas": {
+        "projectId": "8e527d23-d3bd-420d-93b2-6f37e32ce629"
+      }
+    }
   }
 }
