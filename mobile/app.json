@@ -43,6 +43,14 @@
           "backgroundColor": "#faf8f5",
           "resizeMode": "contain"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "SchoolMart uses your photo library so businesses can add pictures of their products.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "owner": "jurabuss-team",

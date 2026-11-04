@@ -3,6 +3,7 @@ import { useSettings } from '@/core/settings';
 import { colors } from '@/core/theme';
 
 export default function Layout() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { S, accent } = useSettings();
   return (
     <Stack
@@ -14,7 +15,8 @@ export default function Layout() {
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
-      <Stack.Screen name="index" options={{ title: S.nav_track }} />
+      <Stack.Screen name="index" options={{ title: S.nav_orders }} />
+      <Stack.Screen name="[id]" options={{ title: S.lbl_order_code }} />
     </Stack>
   );
 }

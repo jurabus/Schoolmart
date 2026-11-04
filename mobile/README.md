@@ -13,13 +13,18 @@ mobile/
 ├─ assets/             Icon, Android adaptive icon, splash
 └─ src/
    ├─ app/             Routes only (thin files that point to module screens)
-   │  └─ (tabs)/       One folder per bottom tab: (shop), cart, track
+   │  └─ (tabs)/       One folder per bottom tab: (shop), cart, track, account, biz-orders, biz-products
    ├─ core/            Shared: Supabase client, settings, cart, storage, theme, UI kit
    └─ modules/         ← Features live here (plug-and-play)
-      ├─ registry.ts   The list of active modules
-      ├─ catalog/      Home, categories, subcategories, product  (core)
-      ├─ cart/         Cart, checkout, confirmation               (core)
-      └─ orders/       Order tracking + recent orders on this device
+      ├─ registry.ts   The list of active modules (+ which tabs each role sees)
+      ├─ search/       Home search bar with live suggestions, paginated results
+      ├─ catalog/      Home, suppliers, categories, subcategories, product   (core)
+      ├─ cart/         One-supplier cart, checkout (login required), confirmation (core)
+      ├─ orders/       My orders (customers), track by code (guests)
+      ├─ account/      Log in, sign up, profile, password, delete account     (core)
+      └─ business/     Business dashboard: orders + products (business accounts only)
+
+Roles: guest · customer · business (each sees its own tabs; set in each module's `tab.roles`).
 ```
 
 ## Plug-and-play modules
@@ -43,17 +48,22 @@ export const wishlistModule: AppModule = {
 **Switch a module off without an app update:** add a setting `app_disabled_modules`
 (comma separated ids, e.g. `orders`) to the website settings. Core modules can't be switched off.
 
+**A module can also add a block to the top of the home screen** with `HomeTop` (that's how search plugs in).
+
 **Rules for modules**
 - Modules may import from `src/core/`, never from each other.
 - Shared state (cart, settings) lives in `src/core/`.
-- Anything that needs new database tables ships with its own SQL file in `supabase/modules/<id>.sql`.
+- Anything that needs database changes ships as the next numbered file in `supabase/migrations/`.
 
 ## Security
 
 - The app uses only the public (publishable) key. All access rules are enforced by the database.
-- Orders are created via `place_order` (prices recalculated on the server) and looked up via
-  `lookup_order` (phone + order code, rate limited). The app cannot list or read other orders.
-- No accounts, no analytics, no tracking.
+- Orders are created via `place_order` (prices recalculated on the server, one supplier per order).
+  Customers can read only their own orders; a business only orders placed with it; guests only via
+  `lookup_order` (phone + order code, rate limited).
+- Businesses can add/edit only their own products and upload photos only into their own folder.
+- Accounts: phone + password (Supabase Auth). Business logins are created only by the admin.
+- No analytics, no tracking. Customers can delete their account in the app.
 
 ## Building (no computer needed)
 

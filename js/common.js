@@ -12,6 +12,21 @@ export const configured =
 
 export const sb = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
+// A second, throw-away client (no stored session) used by the admin page to create
+// business logins without signing the admin out.
+export const makeSignupClient = () => configured
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'sb-signup-tmp' } })
+  : null;
+
+// MUST match public.canonical_phone() / phone_email() in supabase/migrations/002_marketplace.sql
+export function canonicalPhone(p) {
+  const d = String(p || '').replace(/\D/g, '');
+  if (d.startsWith('00')) return d.slice(2);
+  if (d.startsWith('0') && d.length === 11) return '20' + d.slice(1);
+  return d;
+}
+export const phoneEmail = p => `u${canonicalPhone(p)}@schoolmart.pro`;
+
 export const STATUSES = ['new', 'confirmed', 'delivered', 'cancelled'];
 
 // Every customer-facing text lives here as a default.
@@ -81,6 +96,32 @@ export const DEFAULT_SETTINGS = {
   status_confirmed: 'Confirmed',
   status_delivered: 'Delivered',
   status_cancelled: 'Cancelled',
+
+  suppliers_heading: 'Suppliers',
+  supplier_label: 'Sold by',
+  search_placeholder: 'Search school supplies',
+  search_view_all: 'View all results',
+  search_no_results: 'No items match your search.',
+  search_recent: 'Recent searches',
+  nav_account: 'Account',
+  nav_orders: 'Orders',
+  my_orders_title: 'My orders',
+  no_orders: 'You have no orders yet.',
+  login_title: 'Log in',
+  login_button: 'Log in',
+  register_title: 'Create account',
+  register_button: 'Create account',
+  f_password: 'Password',
+  f_confirm_password: 'Confirm password',
+  login_required: 'Log in or create an account to place your order.',
+  edit_profile: 'Edit profile',
+  change_password: 'Change password',
+  logout: 'Log out',
+  delete_account: 'Delete account',
+  delete_account_confirm: 'This permanently deletes your account and profile. Past orders stay with the supplier for their records.',
+  new_cart_title: 'Start a new cart?',
+  new_cart_message: 'Your cart has items from {store}. Adding this item will clear your current cart.',
+  app_disabled_modules: '',
 
   footer_text: '© SchoolMart. All rights reserved.',
   contact_phone: '',
@@ -159,6 +200,37 @@ export const SETTINGS_FIELDS = [
     ['status_confirmed', 'Status: confirmed', 'text'],
     ['status_delivered', 'Status: delivered', 'text'],
     ['status_cancelled', 'Status: cancelled', 'text'],
+  ]},
+  { group: 'App: suppliers & search', fields: [
+    ['suppliers_heading', 'Suppliers heading', 'text'],
+    ['supplier_label', '"Sold by" label', 'text'],
+    ['search_placeholder', 'Search box placeholder', 'text'],
+    ['search_view_all', '"View all results" button', 'text'],
+    ['search_no_results', 'No search results message', 'text'],
+    ['search_recent', '"Recent searches" heading', 'text'],
+    ['new_cart_title', 'New cart dialog title', 'text'],
+    ['new_cart_message', 'New cart dialog message ({store} = current supplier)', 'textarea'],
+  ]},
+  { group: 'App: accounts', fields: [
+    ['nav_account', 'Account tab', 'text'],
+    ['nav_orders', 'Orders tab', 'text'],
+    ['my_orders_title', '"My orders" title', 'text'],
+    ['no_orders', 'No orders message', 'text'],
+    ['login_title', 'Log in title', 'text'],
+    ['login_button', 'Log in button', 'text'],
+    ['register_title', 'Create account title', 'text'],
+    ['register_button', 'Create account button', 'text'],
+    ['f_password', 'Password label', 'text'],
+    ['f_confirm_password', 'Confirm password label', 'text'],
+    ['login_required', 'Log in required (checkout) message', 'textarea'],
+    ['edit_profile', 'Edit profile', 'text'],
+    ['change_password', 'Change password', 'text'],
+    ['logout', 'Log out', 'text'],
+    ['delete_account', 'Delete account', 'text'],
+    ['delete_account_confirm', 'Delete account warning', 'textarea'],
+  ]},
+  { group: 'App: advanced', fields: [
+    ['app_disabled_modules', 'Switch off app modules (comma separated ids, e.g. orders,search)', 'text'],
   ]},
   { group: 'Footer & contact', fields: [
     ['footer_text', 'Footer text', 'textarea'],
@@ -249,6 +321,7 @@ export function orderHtml(o, items, S) {
       <span class="status status-${st}">${esc(statusLabel(st, S))}</span>
     </div>
     <dl class="kv">
+      ${o.business_name ? `<dt>${esc(S.supplier_label)}</dt><dd>${esc(o.business_name)}</dd>` : ''}
       <dt>${esc(S.lbl_date)}</dt><dd>${esc(fmtDate(o.created_at))}</dd>
       <dt>${esc(S.lbl_name)}</dt><dd>${esc(o.first_name)} ${esc(o.last_name)}</dd>
       <dt>${esc(S.f_phone)}</dt><dd dir="ltr">${esc(o.phone)}</dd>

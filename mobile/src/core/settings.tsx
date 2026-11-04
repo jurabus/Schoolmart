@@ -74,6 +74,32 @@ export const DEFAULT_SETTINGS = {
   contact_email: '',
   contact_address: '',
 
+  // Marketplace, search and accounts
+  suppliers_heading: 'Suppliers',
+  supplier_label: 'Sold by',
+  search_placeholder: 'Search school supplies',
+  search_view_all: 'View all results',
+  search_no_results: 'No items match your search.',
+  search_recent: 'Recent searches',
+  nav_account: 'Account',
+  nav_orders: 'Orders',
+  my_orders_title: 'My orders',
+  no_orders: 'You have no orders yet.',
+  login_title: 'Log in',
+  login_button: 'Log in',
+  register_title: 'Create account',
+  register_button: 'Create account',
+  f_password: 'Password',
+  f_confirm_password: 'Confirm password',
+  login_required: 'Log in or create an account to place your order.',
+  edit_profile: 'Edit profile',
+  change_password: 'Change password',
+  logout: 'Log out',
+  delete_account: 'Delete account',
+  delete_account_confirm: 'This permanently deletes your account and profile. Past orders stay with the supplier for their records.',
+  new_cart_title: 'Start a new cart?',
+  new_cart_message: 'Your cart has items from {store}. Adding this item will clear your current cart.',
+
   // App-only: module ids switched off remotely, comma separated (e.g. "orders").
   app_disabled_modules: '',
 };

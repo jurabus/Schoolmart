@@ -1,7 +1,11 @@
 -- =====================================================================
 --  Ordering Store — Supabase schema
 --  Run this ONCE in Supabase: SQL Editor → New query → paste → Run.
---  Safe to re-run (uses IF NOT EXISTS / OR REPLACE / DROP POLICY IF EXISTS).
+--  Then run every file in supabase/migrations/ in order (002, 003, ...).
+--
+--  ⚠ After migrations are applied, do NOT run this file again: it would put back
+--  the original order functions and break ordering. Re-run the migrations instead
+--  (they are safe to re-run).
 -- =====================================================================
 
 create extension if not exists pgcrypto with schema extensions;

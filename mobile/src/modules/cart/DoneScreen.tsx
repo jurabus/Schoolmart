@@ -29,6 +29,7 @@ export function DoneScreen() {
           onPress={async () => { await Clipboard.setStringAsync(code); setCopied(true); }}
           style={{ alignSelf: 'stretch' }}
         />
+        <Button title={S.my_orders_title} onPress={() => router.navigate('/track')} style={{ alignSelf: 'stretch' }} />
         <Button title={S.continue_shopping} variant="primary" onPress={() => router.navigate('/')} style={{ alignSelf: 'stretch' }} />
       </Card>
       {q.data?.order ? <View style={{ marginTop: 16 }}><OrderCard order={q.data.order} items={q.data.items} /></View> : null}

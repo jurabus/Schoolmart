@@ -1,26 +1,29 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
-import { isUuid, sb, type Product } from '@/core/supabase';
+import { isUuid, PRODUCT_COLUMNS, sb, type Product } from '@/core/supabase';
 import { useSettings } from '@/core/settings';
 import { useQuery, unwrap } from '@/core/useQuery';
-import { Empty, ErrorView, H1, Loading, ModeTag, Screen, TileGrid } from '@/core/ui';
+import { Empty, ErrorView, H1, Loading, ModeTag, Muted, Screen, TileGrid } from '@/core/ui';
 import { money } from '@/core/format';
 
+/** Products in a subcategory — from every supplier, or one supplier with ?business=<id>. */
 export function SubcategoryScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, business } = useLocalSearchParams<{ id: string; business?: string }>();
   const { S, accent } = useSettings();
   const nav = useNavigation();
+  const biz = isUuid(business) ? business! : null;
 
   const q = useQuery(async () => {
     if (!isUuid(id)) return null;
+    let pq = sb.from('products').select(PRODUCT_COLUMNS).eq('subcategory_id', id).eq('visible', true);
+    if (biz) pq = pq.eq('business_id', biz);
     const [sub, products] = await Promise.all([
       unwrap<{ id: string; title: string } | null>(sb.from('subcategories').select('id,title').eq('id', id).maybeSingle()),
-      unwrap<Product[]>(sb.from('products').select('id,name,description,image_url,price,mode')
-        .eq('subcategory_id', id).eq('visible', true).order('sort_order').order('created_at')),
+      unwrap<Product[]>(pq.order('sort_order').order('created_at').limit(200)),
     ]);
     return sub ? { sub, products } : null;
-  }, [id]);
+  }, [id, biz]);
 
   useEffect(() => { if (q.data) nav.setOptions({ title: q.data.sub.title }); }, [q.data, nav]);
 
@@ -40,6 +43,7 @@ export function SubcategoryScreen() {
           footer={p => (
             <View style={{ alignItems: 'center', gap: 4, marginTop: 4 }}>
               <Text style={{ color: accent, fontWeight: '800' }}>{money(p.price, S.currency)}</Text>
+              {!biz && p.businesses?.name ? <Muted small>{p.businesses.name}</Muted> : null}
               <ModeTag mode={p.mode} />
             </View>
           )}

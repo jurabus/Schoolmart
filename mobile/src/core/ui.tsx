@@ -1,8 +1,10 @@
-import { useState, type ReactNode } from 'react';
+import React, { useState, type ReactNode } from 'react';
 import {
-  ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput,
+  ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, TextInput,
   View, useWindowDimensions, type TextInputProps, type ViewStyle,
 } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image, type ImageStyle } from 'expo-image';
 import { colors, radius, space, statusColors } from './theme';
 import { useSettings } from './settings';
@@ -156,7 +158,12 @@ export function Field({ label, ...props }: { label: string } & TextInputProps) {
   return (
     <View style={{ gap: 6 }}>
       <Text style={st.label}>{label}</Text>
-      <TextInput placeholderTextColor={colors.muted} style={[st.input, props.multiline && { minHeight: 90, textAlignVertical: 'top' }]} {...props} />
+      <TextInput
+        placeholderTextColor={colors.muted}
+        accessibilityLabel={label}
+        style={[st.input, props.multiline && { minHeight: 90, textAlignVertical: 'top' }, props.editable === false && { backgroundColor: colors.soft, color: colors.muted }]}
+        {...props}
+      />
     </View>
   );
 }
@@ -208,6 +215,7 @@ export function OrderCard({ order, items }: { order: Order; items: OrderItem[] }
         <Tag text={label} bg={sc.bg} fg={sc.fg} />
       </View>
       <View style={st.hr} />
+      {order.business_name ? <KV k={S.supplier_label} v={order.business_name} /> : null}
       <KV k={S.lbl_date} v={fmtDate(order.created_at)} />
       <KV k={S.lbl_name} v={`${order.first_name} ${order.last_name}`} />
       <KV k={S.f_phone} v={order.phone} />
@@ -240,6 +248,102 @@ function KV({ k, v }: { k: string; v: string }) {
   );
 }
 
+// ------------------------------------------------------------ form helpers
+export function Segmented<T extends string>({ value, options, onChange }: {
+  value: T; options: { value: T; label: string }[]; onChange: (v: T) => void;
+}) {
+  const { accent } = useSettings();
+  return (
+    <View style={st.seg}>
+      {options.map(o => {
+        const on = o.value === value;
+        return (
+          <Pressable key={o.value} onPress={() => onChange(o.value)} accessibilityRole="button" accessibilityState={{ selected: on }}
+            style={[st.segItem, on && { backgroundColor: accent }]}>
+            <Text style={[st.segText, on && { color: '#fff' }]} numberOfLines={1}>{o.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+export function SwitchRow({ label, value, onChange, hint }: { label: string; value: boolean; onChange: (v: boolean) => void; hint?: string }) {
+  const { accent } = useSettings();
+  return (
+    <View style={[st.row, { alignItems: 'center' }]}>
+      <View style={{ flex: 1 }}>
+        <Text style={st.label}>{label}</Text>
+        {hint ? <Text style={[st.muted, st.small, { textAlign: 'left' }]}>{hint}</Text> : null}
+      </View>
+      <Switch value={value} onValueChange={onChange} trackColor={{ true: accent, false: colors.line }} />
+    </View>
+  );
+}
+
+/** A tappable field that opens a searchable list (works the same on every platform). */
+export function SelectField<T extends { id: string; label: string }>({ label, value, options, onChange, placeholder }: {
+  label: string; value: string | null | undefined; options: T[]; onChange: (o: T) => void; placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const insets = useSafeAreaInsets();
+  const current = options.find(o => o.id === value);
+  const shown = q ? options.filter(o => o.label.toLowerCase().includes(q.toLowerCase())) : options;
+  return (
+    <View style={{ gap: 6 }}>
+      <Text style={st.label}>{label}</Text>
+      <Pressable style={[st.input, st.row, { alignItems: 'center' }]} onPress={() => { setQ(''); setOpen(true); }} accessibilityRole="button">
+        <Text style={{ color: current ? colors.text : colors.muted, flex: 1, fontSize: 16 }} numberOfLines={1}>
+          {current ? current.label : placeholder || 'Choose…'}
+        </Text>
+        <Ionicons name="chevron-down" size={18} color={colors.muted} />
+      </Pressable>
+      <Modal visible={open} animationType="slide" onRequestClose={() => setOpen(false)}>
+        <View style={{ flex: 1, backgroundColor: colors.bg, paddingTop: insets.top + 8 }}>
+          <View style={[st.row, { padding: space, alignItems: 'center' }]}>
+            <Text style={[st.h1, { marginBottom: 0, fontSize: 20, flex: 1 }]}>{label}</Text>
+            <Pressable onPress={() => setOpen(false)} hitSlop={12} accessibilityLabel="Close"><Ionicons name="close" size={26} color={colors.text} /></Pressable>
+          </View>
+          {options.length > 8 ? (
+            <View style={{ paddingHorizontal: space, paddingBottom: 8 }}>
+              <TextInput style={st.input} placeholder="Search" placeholderTextColor={colors.muted} value={q} onChangeText={setQ} autoCorrect={false} />
+            </View>
+          ) : null}
+          <FlatList
+            data={shown}
+            keyExtractor={o => o.id}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+            renderItem={({ item }) => (
+              <Pressable onPress={() => { onChange(item); setOpen(false); }} style={({ pressed }) => [st.option, pressed && { backgroundColor: colors.soft }]}>
+                <Text style={{ flex: 1, fontSize: 16, color: colors.text }}>{item.label}</Text>
+                {item.id === value ? <Ionicons name="checkmark" size={20} color={colors.ok} /> : null}
+              </Pressable>
+            )}
+            ListEmptyComponent={<Text style={[st.muted, { padding: 24 }]}>Nothing found</Text>}
+          />
+        </View>
+      </Modal>
+    </View>
+  );
+}
+
+export function ListRow({ title, subtitle, onPress, icon, danger }: {
+  title: string; subtitle?: string; onPress?: () => void; icon?: React.ComponentProps<typeof Ionicons>['name']; danger?: boolean;
+}) {
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [st.listRow, pressed && { backgroundColor: colors.soft }]} accessibilityRole="button">
+      {icon ? <Ionicons name={icon} size={20} color={danger ? colors.danger : colors.muted} /> : null}
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 16, color: danger ? colors.danger : colors.text, fontWeight: '600' }}>{title}</Text>
+        {subtitle ? <Text style={{ color: colors.muted, fontSize: 13 }}>{subtitle}</Text> : null}
+      </View>
+      {onPress && !danger ? <Ionicons name="chevron-forward" size={18} color={colors.muted} /> : null}
+    </Pressable>
+  );
+}
+
 // ------------------------------------------------------------ styles
 export const st = StyleSheet.create({
   center: { flex: 1, minHeight: 280, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 },
@@ -266,4 +370,9 @@ export const st = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   hr: { height: 1, backgroundColor: colors.line },
   code: { fontWeight: '800', letterSpacing: 1.5, fontVariant: ['tabular-nums'] },
+  seg: { flexDirection: 'row', borderWidth: 1, borderColor: colors.line, borderRadius: radius.pill, padding: 3, backgroundColor: colors.surface },
+  segItem: { flex: 1, minHeight: 38, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
+  segText: { fontWeight: '700', color: colors.text, fontSize: 13 },
+  option: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space, paddingVertical: 16, borderBottomWidth: 1, borderColor: colors.line, gap: 10 },
+  listRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 4 },
 });

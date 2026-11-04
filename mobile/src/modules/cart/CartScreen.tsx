@@ -9,7 +9,7 @@ import { colors } from '@/core/theme';
 import { useCartProducts } from './useCartProducts';
 
 export function CartScreen() {
-  const { S, deliveryFee } = useSettings();
+  const { S, deliveryFee, accent } = useSettings();
   const cart = useCart();
   const { lines, subtotal, loading, error, removed, reload } = useCartProducts();
 
@@ -28,6 +28,14 @@ export function CartScreen() {
   return (
     <Screen onRefresh={reload}>
       {removed ? <Notice>{S.removed_items_notice}</Notice> : null}
+      {cart.businessId ? (
+        <Pressable onPress={() => router.push({ pathname: '/business/[id]', params: { id: cart.businessId! } })}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }} accessibilityRole="link">
+          <Ionicons name="storefront-outline" size={18} color={accent} />
+          <Text style={{ color: colors.muted }}>{S.supplier_label}</Text>
+          <Text style={{ color: accent, fontWeight: '800', flex: 1 }} numberOfLines={1}>{cart.businessName}</Text>
+        </Pressable>
+      ) : null}
       <Card style={{ paddingVertical: 4 }}>
         {lines.map((l, i) => (
           <View key={l.id} style={{ flexDirection: 'row', gap: 12, paddingVertical: 14, borderTopWidth: i ? 1 : 0, borderColor: colors.line }}>

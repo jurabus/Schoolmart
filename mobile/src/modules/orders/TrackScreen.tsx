@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -9,7 +9,7 @@ import { Button, Card, Field, H1, Muted, Notice, OrderCard, Screen, st } from '@
 import { fmtDate } from '@/core/format';
 import { colors } from '@/core/theme';
 
-export function TrackScreen() {
+export function TrackScreen({ header }: { header?: ReactNode } = {}) {
   const { S, accent } = useSettings();
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -34,6 +34,7 @@ export function TrackScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={90}>
       <Screen>
+        {header}
         <H1>{S.track_title}</H1>
 
         {recent.length ? (

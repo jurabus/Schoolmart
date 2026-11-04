@@ -1,4 +1,4 @@
-import type { AppModule } from '../types';
+import { SHOPPER_ROLES, type AppModule } from '../types';
 import { useCart } from '@/core/cart';
 
 export const cartModule: AppModule = {
@@ -9,6 +9,7 @@ export const cartModule: AppModule = {
     title: S => S.cart_title,
     icon: 'cart-outline',
     order: 20,
+    roles: SHOPPER_ROLES,
     useBadge: () => { const n = useCart().count; return n > 0 ? n : undefined; },
   },
 };

@@ -33,7 +33,7 @@ export function useQuery<T>(fn: () => Promise<T>, deps: unknown[]) {
 }
 
 // Supabase returns { data, error }; turn errors into exceptions for useQuery.
-export async function unwrap<T>(p: PromiseLike<{ data: T | null; error: { message: string } | null }>): Promise<T> {
+export async function unwrap<T>(p: PromiseLike<{ data: unknown; error: { message: string } | null }>): Promise<T> {
   const { data, error } = await p;
   if (error) throw new Error(error.message);
   return data as T;
